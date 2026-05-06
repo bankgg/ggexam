@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>LIDO Route Manual Exam Prep</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            panel: { bg: '#0c1117', card: '#151d28', raised: '#1c2736', border: '#263345' },
+            inst: { amber: '#f0a500', amberDim: '#946700', green: '#22c55e', red: '#ef4444', muted: '#5a6f8a', text: '#c9d5e3' }
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['"DM Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    /* Scanline overlay */
+    .scanlines::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 50;
+    }
+    /* Vignette */
+    .scanlines::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+      pointer-events: none;
+      z-index: 49;
+    }
+    /* Custom toggle */
+    .toggle-track {
+      width: 48px; height: 26px; border-radius: 13px;
+      background: #263345; position: relative; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track.active { background: #f0a500; }
+    .toggle-track::after {
+      content: '';
+      position: absolute; top: 3px; left: 3px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #c9d5e3;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-track.active::after {
+      transform: translateX(22px);
+      background: #0c1117;
+    }
+    /* Choice letter badge */
+    .choice-letter {
+      width: 28px; height: 28px; min-width: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 600;
+      border: 1.5px solid #263345; color: #5a6f8a;
+      transition: all 0.2s;
+    }
+    /* Pulse animation for score */
+    @keyframes scoreIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .score-enter { animation: scoreIn 0.6s ease-out forwards; }
+    /* Fade in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease-out forwards; }
+    /* Progress bar glow */
+    .progress-glow {
+      box-shadow: 0 0 8px rgba(240,165,0,0.4), 0 0 2px rgba(240,165,0,0.6);
+    }
+    /* Hide scrollbar */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-panel-bg text-inst-text min-h-screen scanlines" x-data="examApp()">
+
+  <!-- ===================== START SCREEN ===================== -->
+  <div x-show="!started" x-transition.opacity.duration.300ms class="flex items-center justify-center min-h-screen px-4 py-8">
+    <div class="max-w-md w-full">
+      <!-- Header mark -->
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 mb-6">
+          <div class="w-2 h-2 rounded-full bg-inst-amber animate-pulse"></div>
+          <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-inst-muted">Examination System</span>
+          <div class="w-2 h-2 rounded-full bg-inst-amber animate-pulse"></div>
+        </div>
+        <h1 class="font-mono text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+          LIDO Route Manual
+        </h1>
+        <div class="mt-3 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-inst-amber to-transparent"></div>
+        <p class="mt-3 text-inst-muted text-sm">88 Questions &middot; Multiple Choice</p>
+      </div>
+
+      <!-- Options panel -->
+      <div class="bg-panel-card border border-panel-border rounded-xl overflow-hidden mb-6">
+        <div class="px-4 py-3 border-b border-panel-border flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full bg-inst-amber"></div>
+          <span class="font-mono text-[11px] uppercase tracking-wider text-inst-muted">Configuration</span>
+        </div>
+        <div class="divide-y divide-panel-border">
+          <label class="flex items-center justify-between px-4 py-4 cursor-pointer active:bg-panel-raised transition-colors">
+            <div>
+              <p class="text-sm font-medium text-inst-text">Shuffle Questions</p>
+              <p class="text-xs text-inst-muted mt-0.5">Randomize question order</p>
+            </div>
+            <div class="toggle-track" :class="shuffleQuestions && 'active'" @click="shuffleQuestions = !shuffleQuestions"></div>
+          </label>
+          <label class="flex items-center justify-between px-4 py-4 cursor-pointer active:bg-panel-raised transition-colors">
+            <div>
+              <p class="text-sm font-medium text-inst-text">Shuffle Choices</p>
+              <p class="text-xs text-inst-muted mt-0.5">Randomize answer order</p>
+            </div>
+            <div class="toggle-track" :class="shuffleChoices && 'active'" @click="shuffleChoices = !shuffleChoices"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Start button -->
+      <button @click="startExam"
+              class="w-full bg-inst-amber hover:bg-amber-400 active:bg-amber-500 text-panel-bg font-semibold py-4 rounded-xl text-base font-mono tracking-wide transition-colors">
+        BEGIN EXAMINATION
+      </button>
+
+      <p class="text-center text-inst-muted text-[11px] mt-4 font-mono">Select an answer to proceed &middot; One question at a time</p>
+    </div>
+  </div>
+
+  <!-- ===================== QUESTION SCREEN ===================== -->
+  <div x-show="started && !finished" class="min-h-screen flex flex-col">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-40 bg-panel-bg/90 backdrop-blur-sm border-b border-panel-border">
+      <div class="max-w-2xl mx-auto px-4 py-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs text-inst-muted">Q</span>
+            <span class="font-mono text-lg font-bold text-white" x-text="(currentIndex + 1).toString().padStart(2,'0')"></span>
+            <span class="font-mono text-xs text-inst-muted" x-text="'/ ' + examQuestions.length"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full" :class="answers[currentIndex] !== undefined ? 'bg-inst-green' : 'bg-inst-amber animate-pulse'"></div>
+            <span class="font-mono text-xs text-inst-muted"
+                  x-text="Object.keys(answers).length + ' / ' + examQuestions.length + ' answered'"></span>
+          </div>
+        </div>
+        <!-- Progress bar -->
+        <div class="w-full h-1 bg-panel-border rounded-full overflow-hidden">
+          <div class="h-full bg-inst-amber rounded-full transition-all duration-500 ease-out progress-glow"
+               :style="'width: ' + (Object.keys(answers).length / examQuestions.length * 100) + '%'"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Question content -->
+    <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-5 flex flex-col">
+      <div class="fade-up" :key="currentIndex">
+        <!-- Question -->
+        <div class="bg-panel-card border border-panel-border rounded-xl p-5 mb-5">
+          <p class="text-[11px] font-mono uppercase tracking-wider text-inst-amber mb-3"
+             x-text="'QUESTION ' + (currentIndex + 1).toString().padStart(2,'0')"></p>
+          <p class="text-[15px] sm:text-base font-medium text-white leading-relaxed"
+             x-text="examQuestions[currentIndex].question"></p>
+        </div>
+
+        <!-- Choices -->
+        <div class="space-y-2.5">
+          <template x-for="(choice, ci) in examQuestions[currentIndex].choices" :key="ci">
+            <button @click="selectAnswer(currentIndex, ci)"
+                    :disabled="answers[currentIndex] !== undefined"
+                    :class="choiceClass(currentIndex, ci)"
+                    class="w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all duration-200 flex items-start gap-3 active:scale-[0.98]">
+              <span class="choice-letter" :style="choiceLetterStyle(currentIndex, ci)"
+                    x-text="String.fromCharCode(65 + ci)"></span>
+              <span class="text-sm sm:text-[15px] leading-relaxed pt-0.5" x-text="choice"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Spacer to push nav down -->
+      <div class="flex-1 min-h-4"></div>
+
+      <!-- Navigation -->
+      <nav class="flex items-center justify-between pt-4 pb-6">
+        <button @click="currentIndex > 0 && currentIndex--"
+                :disabled="currentIndex === 0"
+                :class="currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-panel-raised active:bg-panel-border'"
+                class="flex items-center gap-2 font-mono text-sm text-inst-muted px-4 py-3 rounded-lg border border-panel-border transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          Prev
+        </button>
+
+        <div class="font-mono text-xs text-inst-muted"
+             x-text="(currentIndex + 1) + ' of ' + examQuestions.length"></div>
+
+        <button @click="nextQuestion"
+                :disabled="answers[currentIndex] === undefined"
+                :class="answers[currentIndex] === undefined
+                  ? 'opacity-30 cursor-not-allowed bg-panel-raised text-inst-muted border-panel-border'
+                  : 'bg-inst-amber text-panel-bg border-inst-amber hover:bg-amber-400 active:bg-amber-500'"
+                class="flex items-center gap-2 font-mono text-sm font-semibold px-5 py-3 rounded-lg border transition-colors">
+          <span x-text="currentIndex === examQuestions.length - 1 ? 'Finish' : 'Next'"></span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <!-- ===================== RESULT SCREEN ===================== -->
+  <div x-show="finished" x-transition.opacity.duration.400ms class="flex items-center justify-center min-h-screen px-4 py-8">
+    <div class="max-w-md w-full text-center">
+      <div class="inline-flex items-center gap-2 mb-8">
+        <div class="w-2 h-2 rounded-full bg-inst-green"></div>
+        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-inst-muted">Examination Complete</span>
+        <div class="w-2 h-2 rounded-full bg-inst-green"></div>
+      </div>
+
+      <div class="bg-panel-card border border-panel-border rounded-2xl p-8 mb-6">
+        <!-- Score -->
+        <div class="score-enter">
+          <p class="font-mono text-6xl sm:text-7xl font-bold"
+             :class="scorePercent >= 80 ? 'text-inst-green' : scorePercent >= 50 ? 'text-inst-amber' : 'text-inst-red'"
+             x-text="scorePercent.toFixed(1) + '%'"></p>
+        </div>
+        <div class="mt-4 h-px w-12 mx-auto bg-panel-border"></div>
+        <p class="mt-4 font-mono text-sm text-inst-muted"
+           x-text="correctCount + ' of ' + examQuestions.length + ' correct'"></p>
+
+        <!-- Grade label -->
+        <div class="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full border"
+             :class="scorePercent >= 80 ? 'border-inst-green/30 bg-inst-green/10 text-inst-green' : scorePercent >= 50 ? 'border-inst-amber/30 bg-inst-amber/10 text-inst-amber' : 'border-inst-red/30 bg-inst-red/10 text-inst-red'">
+          <span class="font-mono text-xs font-bold tracking-wider"
+                x-text="scorePercent >= 80 ? 'PASS' : scorePercent >= 50 ? 'MARGINAL' : 'FAIL'"></span>
+        </div>
+      </div>
+
+      <!-- Breakdown bar -->
+      <div class="bg-panel-card border border-panel-border rounded-xl p-4 mb-6">
+        <div class="flex gap-1 h-3 rounded-full overflow-hidden">
+          <div class="bg-inst-green rounded-l-full transition-all duration-700"
+               :style="'width:' + (correctCount / examQuestions.length * 100) + '%'"></div>
+          <div class="bg-inst-red rounded-r-full transition-all duration-700"
+               :style="'width:' + ((examQuestions.length - correctCount) / examQuestions.length * 100) + '%'"></div>
+        </div>
+        <div class="flex justify-between mt-2 font-mono text-[11px] text-inst-muted">
+          <span x-text="correctCount + ' correct'"></span>
+          <span x-text="(examQuestions.length - correctCount) + ' incorrect'"></span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button @click="resetExam"
+                class="flex-1 border border-panel-border text-inst-muted hover:bg-panel-raised active:bg-panel-border font-mono text-sm py-3.5 rounded-xl transition-colors">
+          RETRY
+        </button>
+        <button @click="reviewMode = true; finished = false; currentIndex = 0"
+                class="flex-1 bg-inst-amber text-panel-bg hover:bg-amber-400 active:bg-amber-500 font-mono text-sm font-semibold py-3.5 rounded-xl transition-colors">
+          REVIEW
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+function examApp() {
+  const rawData = [
+    {q:"When dose the runway center line lights displayed all \"RED\"?", c:["Last 300 m.","Last 900 m.","Last 450 m.","Last 600 m."], a:0},
+    {q:"What is the Russian Federation's GNSS?", c:["GLONASS","QZSS","Gallileo","GBAS"], a:0},
+    {q:"Which transponder Mode A Code shall pilot set when there is radio communication failure with aircraft in flight?", c:["7500","7700","2000","7600"], a:3},
+    {q:"How much is normal ILS coverage angle and distance according to ICAO specification?", c:["10° at 12 NM and 35° at 8 NM","10° at 25 NM and 35° at 17 NM","10° at 18 NM and 35° at 10 NM","10° at 20 NM and 35° at 10 NM"], a:1},
+    {q:"Which sentence is not true?", c:["ABAS is an augment system that augment and/or integrates the information obtain from the other GNSS elements with information available on board the aircraft.","RNP and RNAV are not automatically approved for a navigation specification having a lower accuracy requirement.","RAIM is a technology compensates for the inherent deficienies for GPS by integrating GPS and IRS.","SBAS is a systems that user receives agumentation information from a satellite-base transmitter."], a:2},
+    {q:"What is the recommended procedure for pilot prior to use SID?", c:["Pilot must possession all airport SID charts along flight plan route.","Pilot shall possession take off and take off alternate airport SID charts in flight plan route.","A Final check of proper runway entry and correct route depiction, shortly before take-off.","Pilot must verify their ACFT navigation system is operating correctly and concern with all RWY in aerodrome."], a:2},
+    {q:"For the number transmission which one is correct?", c:["QNH 1000 read \"QNH one thousand\"","Wind 160 degrees 25 knots gusting 30 knots read \"wind one six zero degrees twenty five knots gusting thirty knots\"","Heading 100 degrees read \"heading one hundred\"","DLH 222 read \"Lufthansa triple two\""], a:0},
+    {q:"What is the Standard length of APL [ICAO]?", c:["300 m.","250 m.","600 m.","900 m."], a:3},
+    {q:"Without temperature compensation, What does cold temperature affect to the Glidepath angle of A/C using baro-VNAV to conduct the approach?", c:["GP angle increase","GP angle decrease","GP angle isn't affected by temperature","None of the above"], a:1},
+    {q:"What information is provided by TCAS / ACAS?", c:["TA, RA","RA","TA"], a:0},
+    {q:"What is the meaning if the marshaller gives this signal \"Raise hand just above shoulder height with open palm. Ensuring eye contact with flight crew, close hand into a fist.\"?", c:["Release brakes","Set brakes","Chocks inserted","Chocks removed"], a:1},
+    {q:"For the Transmission of Position Reports, which one is corrected?", c:["On routes defined by designated significant points, position reports shall be made by the aircraft 5 minutes before passing.","On routes defined by designated significant points, position reports shall be made by the aircraft when over, or as soon as possible after passing.","On routes defined by designated significant points, position reports shall be made by the aircraft 3 minutes before passing.","On routes defined by designated significant points, position reports shall be made by the aircraft 10 minutes before passing"], a:1},
+    {q:"Where is the Localizer transmitter?", c:["At the center of the runway","At the opposite end from the approach threshold of the runway centerline","At the runway reference point","At the approach end of the runway centerline"], a:1},
+    {q:"When operating outside data link airspace, How long the flight crew should initiate a logon prior to entry into airspace where data link services are provided?", c:["5 to 10 mins","3 to 5 mins","10 to 20 mins","10 to 25 mins"], a:3},
+    {q:"What is not the purpose of the Rapid Exit Taxiway Indicator Lights (RETILS)?", c:["To enable pilots to apply braking action more efficiently roll out and RWY exit speeds.","To provide pilots with distance to go information to the nearest TWY on the RWY.","To enhance situational awareness in all RWY conditions.","Help pilot to apply landing technique more efficiently."], a:3},
+    {q:"For SELCAL enroute procedure which one is incorrected?", c:["Aerodrome stations should ensure that the appropriate aeronautical station(s) are aware that SELCAL watch is being established or maintained.","Once SELCAL watch has been established by a particular aircraft station, aeronautical stations shall employ SELCAL whenever they require to call aircraft.","In the event the SELCAL signal remains unanswered after two calls on the primary frequency and two calls on the secondary frequency, the aeronautical station should revert to voice calling.","When so prescribed on the basis of regional air navigation agreements, calls for scheduled reports from aircraft may be initiated by an aeronautical station by means of SELCAL."], a:0},
+    {q:"Transponder Code 7500 is use for?", c:["EMERGENCY","HIJACKING","COMMUNICATION FAILURE"], a:1},
+    {q:"Which one is the most correct order of priority in Message Category?", c:["Distress Calls/ Urgency Calls/ Flight Safety Messages/ Meteorological Messages","Urgency Calls/ Distress Calls/ Meteorological Messages/ Flight Safety Messages","Urgency Calls/ Distress Calls/ Flight Safety Messages/ Meteorological Messages","Distress Calls/ Urgency Calls/ Meteorological Messages/ Flight Safety Messages"], a:0},
+    {q:"During cleared transition between levels in RVSM, the aircraft should not be allowed to overshoot or undershoot the new flight level by more than ....... feet.?", c:["200","150","100","50"], a:1},
+    {q:"What letter would be inserted in item 10 of flight plan if the aircraft is RVSM approved?", c:["W","S","V","R"], a:0},
+    {q:"What is the meaning of this sign? [A-VDGS showing \"SLOW\"]", c:["When the aircraft is approaching very fast.","When the aircraft is detected.","ONBLK & chock in","Bring Aircraft into Centerline"], a:0},
+    {q:"Which FL would you choose when flying in RVSM eastbound?", c:["FL320","FL330","FL270","FL430"], a:1},
+    {q:"What is the safe sector in Localizer approach?", c:["+/- 1 dot","+/- 1.5 dot","+/- 2.0 dot","+/- 0.5 dot"], a:0},
+    {q:"How many number of stripes for runway width 45m. and 60m.?", c:["12 and 16","6 and 8","4 and 6","8 and 12"], a:0},
+    {q:"Refer to AIREP SPECIAL form, which one of the following transmissions is not correct", c:["Moderate Icing","Braking Action less than poor","Thunderstorms with hail","Volcanic Ash Cloud"], a:0},
+    {q:"What are different between RNP and RNAV specifications?", c:["RNAV use for oceanic only","Only RNP is required for on-board performance monitoring and alerting","RNP use for long range cruise","Both are not required on-board performance monitoring."], a:1},
+    {q:"PBN performance consist of ?", c:["Accuracy, integrity, continuity ,warning","Accuracy, availability, continuity, warning","Accuracy, integrity, availability, warning","Accuracy, integrity, availability, continuity"], a:3},
+    {q:"What is RNAV specification for en-route oceanic phase?", c:["RNAV 10","RNAV 5","RNAV 1","RNAV 2"], a:0},
+    {q:"Which one is true?", c:["A weather deviation clearance authorizes the flight crew to deviate up to the specified distance at their discretion in the specified direction from the route in the flight plan","An offset clearance authorizes the flight crew to operate at the specified distance in the specified direction from the route in the flight plan. A clearance is required to deviate from this offset route.","All of the above","None of the above"], a:2},
+    {q:"For the number transmission which one is incorrect?", c:["Visibility 1000 read \"Visibility ONE ZERO ZERO ZERO\"","Cloud height 4300 read \"four thousand three hundred\"","Time 0920 read \"ZE-RO NIN-er TOO ZE-RO\"","Altitude 3400 read \"three thousand four hundred feet\""], a:0},
+    {q:"Which of the following is not interrelated elements of PBN concept?", c:["NAVAID infrastructure","navigation application","navigation specification","PBN specification"], a:3},
+    {q:"If the ACFT is required to deviate from track to avoid adverse meteorological conditions and prior clearance cannot be obtained, how does the pilot require to initiate a level change when turning right from 180° route centerline track? (for deviations greater than 5NM)", c:["Climb 300 ft","Descend 500 ft.","Descend 300ft","Climb 500 ft"], a:2},
+    {q:"Which one is correct for Emergency Channel (121.500)?", c:["to provide a channel for the operation of Emergency Locator Transmitters (ELT), and for communication between survival craft and aircraft engaged in search and rescue operation.","to provide air-ground communication with aircraft when airborne equipment failure prevents the use of the special channels.","to provide a special VHF channel for communication between civil aircraft and intercepting aircraft or intercept control units and between civil or intercepting aircraft and air traffic services units in the event of interception of the civil aircraft.","to provide a VHF communication channel between aircraft and aerodromes, normally used by international air services, in case of an emergency condition arising."], a:0},
+    {q:"What does 5020E mean?", c:["S50 00.0 E20 00.0","S20 00.0 E50 00.0","N50 00.0 E20 00.0","N20 00.0 E50 00.0"], a:2},
+    {q:"Transponder Code 7600 is use for?", c:["COMMUNICATION FAILURE","EMERGENCY","HIJACKING"], a:0},
+    {q:"Which one is not correct about Voice Position Reports?", c:["THAI 431 ADMAP 0243 FL 370 DINAR 0323 PKS SQ 2235","THAI 431 ADMAP 43 climb passing FL 345 to FL 370 DINAR 23 SQ 2235","THAI 431 ADMAP 43 FL 370 DINAR 23 PKS next SQ 2235","THAI 431 ADMAP 0243 FL 370 DINAR 0323 PKS SELCAL DFVL"], a:1},
+    {q:"What is/are the principle benefits of RVSM were expected to provide?", c:["a. Doubling of the airspace capacity","b. The opportunity to operate at closer to the optimum flight levels with the resulting fuel economies.","c. Both a & b","d. None of a & b"], a:2},
+    {q:"The glidepath is normally usable to the distance of ....... NM.?", c:["7 NM","10 NM","5 NM","15 NM"], a:1},
+    {q:"In RVSM, a minimum of two RVSM MASPS-compliant systems must agree within ..... ft.?", c:["100","150","50","200"], a:3},
+    {q:"What is the definition of WGS-84 Coordinate System?", c:["A Navigation system that provides the pilot an accurate coordination of earth.","Shape of the globe defined by the highest point from sattelite","An earth-fixed global reference frame that is defined by a set of primary and secondary parameters","Shape of the globe defined by the highest point on earth"], a:2},
+    {q:"Which transponder Mode A Code shall pilot set when there is a state of emergency with aircraft in flight?", c:["7700","2000","7600","7500"], a:0},
+    {q:"What system is required for TCAS/ACAS to function?", c:["FCC","GPS receiver","Transponder mode C or S","RADAR Altimeter"], a:2},
+    {q:"When pilot give \"Hands crossed in front of face, palms outwards, move arms outwards\" signal to the ground personnel, what is the meaning?", c:["Brakes Released","Ready to Start Engine(s)","Remove Wheel Chocks","Insert Wheel Chocks"], a:2},
+    {q:"For Land and Hold Short Operations (LAHSO), which one is corrected?", c:["A LAHSO clearance, once accepted, must be adhered to and unable to amended clearance.","The pilot-in-command has no authority to accept or decline any LAHSO clearance. Pilots are expected to decline a LAHSO clearance if they determine it will compromise safety.","Available landing distances are shown on AOI pages. ATC will not provide Landing Distance Available (LDA) data any more.","ATC may clear a pilot to land and hold short. These operations include landing and holding short of an intersecting RWY, TWY, or some other designated point on a RWY."], a:3},
+    {q:"The frequency 121.500 shall be provided at?", c:["all area control centres and flight information centres","location designated by ICAO. Only.","aerodrome control towers and approach control offices serving domestic aerodromes.","military area control centres and flight information centres"], a:0},
+    {q:"When following events occur, the pilot must stop the docking procedure, report problem to Apron Control except?", c:["Displayed aircraft type is not the incoming aircraft","BRIN message is displayed when bridge setup does not match with that of aircraft type.","Display board illuminates error messages.","STOP message is displayed when the aircraft is docked"], a:3},
+    {q:"What is the meaning when receive \"EXPECT CLIMB AT [position]\" uplink message?", c:["Instruction that at the specified time a climb to the specified level is to commence and once reached the specified level is to be maintained.","Notification that an instruction should be expected for the aircraft to commence climb at the specified position.","Notification that an instruction should be expected for the aircraft to commence cruise climb at the specified position","Notification that an instruction should be expected for the aircraft to commence climb at the specified time"], a:1},
+    {q:"In Belgium FIR, When a controlled flight has been exempted from the requirement to report over compulsory reporting points pilots shall, unless automated position reporting is in effect, resume voice or CPDLC position reporting except?", c:["when advised that the ATS surveillance identification is lost.","when so instructed.","when advised that the ATS surveillance service has been terminated.","when level changes will only report on leaving assigned levels."], a:3},
+    {q:"Transponder Code 7700 is use for?", c:["HIJACKING","EMERGENCY","COMMUNICATION FAILURE"], a:1},
+    {q:"ILS PRM approach conducted to parallel runway whose extended centerline are separated by?", c:["More than 4300ft","Between 2500 ft to 3000 ft","Between 3000ft to 4300ft","Less than 3000ft"], a:2},
+    {q:"What is limit deviation value of Barometric VNAV?", c:["+/- 50 ft","+/- 100 ft","+/- 125 ft","+/- 75 ft"], a:3},
+    {q:"How long does the Runway Touchdown Zone marking?", c:["300 m.","600 m.","450 m.","900 m."], a:3},
+    {q:"Which is not the techniques for vertical path control on non-precision approaches?", c:["Constant Angle Decent","Continuous Descent Final Approach","Stepdown Decent","Visual decent"], a:3},
+    {q:"Which is non-precision approach?", c:["Microwave Landing System (MLS)","Instrument landing system (ILS)","GLS Approach (GBAS Landing System Approach)","Localizer Approach (LOC Approach)"], a:3},
+    {q:"For ADS-B System, which one is correct?", c:["ADS-B is an application of the transponder Mode A.","When the aircraft is out of VHF coverage, ADS-B makes the link between the aircraft and the ATC center.","Unlike SSR, ADS-B works also at low altitudes and on ground.","The ADS-B signal can be captured for surveillance purposes on the ground (ADS-B Out) or on board other aircraft (ADS-B Out)."], a:2},
+    {q:"Which one is incorrect about the Runway Threshold?", c:["When a threshold is displaced from the extremity of a runway, threshold lights shall be placed in a row at right angles to the runway axis at the start of runways.","When a threshold is at the extremity of a runway, the threshold lights shall be placed in a row at right angles to the runway axis as near to the extremity of the runway as possible and, in any case, not more than 3m outside the extremity.","Threshold lighting shall consist of: on a non-instrument or non-precision approach runway, at least six lights","Threshold lighting shall consist of: on a precision approach runway Cat 2 or 3, lights uniformly spaced between the rows of runway edge lights at intervals of not more than 3m."], a:0},
+    {q:"Which transponder Mode A Code shall pilot set when there has not received any instruction from ATC to operate transponder for flight?", c:["7600","7700","7500","2000"], a:3},
+    {q:"According to ICAO standard, the normal reliable coverage of ILS localizer is _nm within 10 degrees either side of the course centerline, and _nm within 35 degrees either side of the course centerline.", c:["10 / 18","25 / 18","17 / 25","25 / 17"], a:3},
+    {q:"Which component is required for TCAS or ACAS system?", c:["TCAS Radar","Transponder","RNAV procedure","ATC radar monitor"], a:1},
+    {q:"The A-VDGS shall provide the following guidance information at the appropriate stage of the docking manoeuvre except?", c:["an indication of the distance to the stop position when aircraft move less than 10 m.","the aircraft type and model for which the guidance is provided","a warning indication if the aircraft goes beyond the appropriate stop position","an indication when the aircraft has reached the correct stopping position"], a:0},
+    {q:"When dose the runway edge lights displayed \"YELLOW\"?", c:["Last 450 m.","Last 900 m.","Last 300 m.","Last 600 m."], a:3},
+    {q:"Which one is not the type of ADS contracts?", c:["Periodic contract","Demand contract; and","Event contract","Temporaries contact"], a:3},
+    {q:"Which sentence is incorrected?", c:["The aircraft should ensure that the HF aeronautical station has the correct SELCAL code information by establishing communications temporarily with the HF aeronautical station while still within UHF coverage.","For preflight SELCAL check: The aircraft station should contact the appropriate aeronautical station and request a pre-flight SELCAL check and, if necessary, give its SELCAL code.","When an aeronautical station initiates a call by SELCAL, the aircraft replies with its radio call sign, followed by the phrase \"GO AHEAD\".","On aircraft equipped with SELCAL, the pilot is still able to keep a conventional listening watch if required."], a:0},
+    {q:"What are the main paths exist of Open Path Designs?", c:["Automated sequencing methods, Speed, Vectoring","Point Merge System","Open CDO procedure until ATC call Vector","Open CDO procedure to Downwind, Vectored CDO procedure"], a:3},
+    {q:"Which techniques is preferred for vertical path control on non-precision approach?", c:["Stepdown Decent","Continuous Descent Final Approach","Visual decent","Constant Angle Decent"], a:1},
+    {q:"What is the phraseology of pilot in case the equipment of an aircraft has degraded below minimum aviation system performance standards?", c:["UNABLE RVSM DUE EQUIPMENT","UNABLE RVSM DUE PERFORMANCE","UNABLE RVSM DUE TURBULENCE","UNABLE RVSM DUE REGULATION"], a:0},
+    {q:"Which phraseologies meaning is incorrected?", c:["UNABLE mean \"I cannot comply with your request, instruction, or clearance.\"","STANDBY mean \"Wait and I will call you\"","BREAK mean I hereby indicate the separation between messages transmitted to different aircraft in a very busy environment.","CORRECTION mean \"An error has been made in this transmission. the correct version is...\""], a:2},
+    {q:"What is the purpose of CCO technique?", c:["To reduce flight time and fatigue","To reduce cockpit crew workload","To reduce operation flight time and fatique","To reduce total fuel burn and emissions"], a:3},
+    {q:"What is the meaning if the marshaller gives this signal \"Move extended arms downwards in a 'patting' gesture, moving hands up and down from waist to knees.\"?", c:["Connect ground power","Turns while backing","Slow down","Slow down engine(s)"], a:2},
+    {q:"Which statement is wrong?", c:["GPS (Global Positioning System) has 31 satellites in the system","Ground Based NAVaids which use signals from DME/DME is less accurate than VOR/DME.","RNAV approach procedures based on DME/DME are non-precision approach procedures.","GPS requires at least 4 satellites in order to identify the position of a waypoint"], a:1},
+    {q:"When does The PIC shall advise ATC of a minimum fuel by declaring \"MINIMUM FUEL\"?", c:["When the PIC calculates that any change to the existing clearance to that aerodrome may result in landing with less than planned alternate fuel.","When the PIC calculates that any change to the existing clearance to that aerodrome may result in landing with less than planned minimum diversion fuel.","When the PIC calculates that any change to the existing clearance to that aerodrome may result in landing with less than planned contingency fuel.","When the PIC calculates that any change to the existing clearance to that aerodrome may result in landing with less than planned final reserve fuel."], a:3},
+    {q:"Which one is not corrected for Strategic Lateral Offset Procedures (SLOP) in Australian FIR?", c:["The offset must be established in tenths of a nautical mile up to a maximum of 2NM to the RIGHT of track relative to the direction of flight.","The use of SLOP is recommended in OCA for aircraft cruising at levels in compliance with the standard ICAO table of cruising levels.","The decision to apply SLOP is the responsibility of the PIC - a clearance is not required.","The offset must not be used in addition to diversions or other offsets; e.g., weather or wake turbulence."], a:1},
+    {q:"Does the BOING 777-200 ER with take off weight 235,455 kg. suitable to operate on RWY 01/19:60/R/B/W/T:?", c:["YES, because ACN is 51","NO, because ACN is 62","YES, because ACN is 60","YES, because ACN is 46"], a:3},
+    {q:"What is deferent between RNAV and RNP?", c:["RNAV has it own on-board monitoring and alerting","RNP has it own on-board monitoring and alerting","RNP use in SIPs/START only","RNAV has more accuracy than RNP"], a:1},
+    {q:"For the Operation of Transponders, which one is correct?", c:["The pilot shall, in the absence of any ATC directions or regional air navigation agreements, operate the transponder on Mode A Code 2000.","The pilot shall operate the transponder and select Mode A codes as directed by the ATC unit with which contact is being made.","The pilot shall operate the transponder on Mode A codes as prescribed on the basis of regional air navigation agreements.","All above are correct"], a:3},
+    {q:"Which one is true?", c:["All emergency locator transmitters carried in compliance with Standards of Annex 6, Parts I, II and III shall operate on both 123.1 and 121.500.","the use of high frequencies for search and rescue scene of action coordination purposes, the frequencies 4125 kHz and 5680 kHz shall be employed.","Where a requirement is established for the use of a frequency auxiliary to 121.500, the frequency 125.100 shall be used.","All emergency locator transmitters carried in compliance with Standards of Annex 6, Parts I, II and III shall operate on both 406.000 and 121.500."], a:3},
+    {q:"FREQ 111.975 - 117.975 utilized for?", c:["Aerodrome Surface Communications","VOR","ILS","Aeronautical Mobile Services"], a:1},
+    {q:"Which are the flight levels (FL) for RVSM?", c:["FL290-FL400","FL290-FL410","FL310-FL400","FL310-FL410"], a:1},
+    {q:"Which approach procedure is not charted in the standard Lido/Route manual?", c:["ILS","LDA","GLS","MLS"], a:3},
+    {q:"What is the decision height (DH) and RVR required for ILS category 1, based on ICAO (Doc 9365), respectively?", c:["200 ft/ 550 m","150 ft/ 350 m","200 ft/ 800 m","100 ft/ 350 m"], a:0},
+    {q:"What is the phraseology of pilot in case after the response to an ACAS RA is completed and a return to the ATC clearance or instruction is initiated?", c:["UNABLE, TCAS RA","CLEAR OF CONFLICT, RETURNING TO (assigned clearance)","TCAS RA","CLEAR OF CONFLICT (assigned clearance) RESUMED"], a:1},
+    {q:"Which transponder Mode A Code shall pilot set when there is unlawful interference with aircraft in flight?", c:["7600","2000","7500","7700"], a:2},
+    {q:"From below figure, what is the type of continuous descent operation?", c:["Closed Path Design","Open Path Design","Control Path design","Not of all"], a:1},
+    {q:"What type of approach procedure does not require a special receiver?", c:["PAR","ILS","LDA","GLS"], a:0},
+    {q:"ICAO recommends that, after a call has been made to the aeronautical station, a period of at least __ seconds should elapse before a second call is made.", c:["12","10","5","3"], a:1},
+    {q:"Does the AIRBUS 350-900 (MAX T/O weight 275,900 KG) with takeoff weight 235,455 kg suitable to operate on RWY 16/34:60/F/A/W/T?", c:["YES, because ACN is 51","NO, because ACN is 60","YES, because ACN is 45","YES, because ACN is 57"], a:3},
+    {q:"Which one is false? When requested by ATC to CONFIRM SQUAWK (code), the pilot shall, except:", c:["verify the Mode A code setting on the transponder.","confirm to ATC the setting displayed on the controls of the transponder.","reselect the assigned code if necessary.","SQUAWK IDENT immediately after setting MODE A code."], a:3},
+    {q:"What is the purpose of the Rapid Exit Taxiway Indicator Lights (RETILS)?", c:["To enhance situational awareness in all RWY conditions.","To enable pilots to apply braking action more efficiently roll out and RWY exit speeds.","Help pilot to apply landing technique more efficiently.","To provide pilots with distance to go information to the nearest TWY on the RWY."], a:1}
+  ];
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  return {
+    started: false,
+    finished: false,
+    reviewMode: false,
+    shuffleQuestions: false,
+    shuffleChoices: false,
+    currentIndex: 0,
+    answers: {},
+    examQuestions: [],
+
+    get correctCount() {
+      return Object.entries(this.answers).filter(([qi, ci]) =>
+        this.examQuestions[qi] && ci === this.examQuestions[qi].correctIndex
+      ).length;
+    },
+    get scorePercent() {
+      return this.examQuestions.length ? (this.correctCount / this.examQuestions.length) * 100 : 0;
+    },
+
+    startExam() {
+      let questions = rawData.map((item) => ({
+        question: item.q,
+        choices: [...item.c],
+        correctIndex: item.a
+      }));
+
+      if (this.shuffleChoices) {
+        questions = questions.map(q => {
+          const indices = q.choices.map((_, i) => i);
+          const shuffled = shuffle(indices);
+          return {
+            question: q.question,
+            choices: shuffled.map(i => q.choices[i]),
+            correctIndex: shuffled.indexOf(q.correctIndex)
+          };
+        });
+      }
+
+      if (this.shuffleQuestions) {
+        const order = shuffle(questions.map((_, i) => i));
+        questions = order.map(i => questions[i]);
+      }
+
+      this.examQuestions = questions;
+      this.answers = {};
+      this.currentIndex = 0;
+      this.started = true;
+      this.finished = false;
+      this.reviewMode = false;
+    },
+
+    selectAnswer(qi, ci) {
+      if (this.answers[qi] !== undefined) return;
+      this.answers[qi] = ci;
+    },
+
+    nextQuestion() {
+      if (this.answers[this.currentIndex] === undefined) return;
+      if (this.currentIndex < this.examQuestions.length - 1) {
+        this.currentIndex++;
+      } else {
+        this.finished = true;
+      }
+    },
+
+    choiceClass(qi, ci) {
+      const selected = this.answers[qi];
+      if (selected === undefined)
+        return 'border-panel-border bg-panel-card hover:border-inst-amber hover:bg-panel-raised active:bg-panel-raised cursor-pointer';
+      const correct = this.examQuestions[qi].correctIndex;
+      if (ci === correct)
+        return 'border-inst-green/50 bg-inst-green/10 text-inst-green';
+      if (ci === selected)
+        return 'border-inst-red/50 bg-inst-red/10 text-inst-red';
+      return 'border-panel-border bg-panel-card opacity-30 cursor-default';
+    },
+
+    choiceLetterStyle(qi, ci) {
+      const selected = this.answers[qi];
+      if (selected === undefined) return '';
+      const correct = this.examQuestions[qi].correctIndex;
+      if (ci === correct) return 'border-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.1)';
+      if (ci === selected) return 'border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.1)';
+      return 'opacity: 0.3';
+    },
+
+    resetExam() {
+      this.started = false;
+      this.finished = false;
+      this.reviewMode = false;
+      this.currentIndex = 0;
+      this.answers = {};
+    }
+  };
+}
+</script>
+</body>
+</html>
