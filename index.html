@@ -99,6 +99,15 @@
     /* Hide scrollbar */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Remove mobile tap highlight */
+    button { -webkit-tap-highlight-color: transparent; }
+    /* Choice button hover only on true hover devices (not touch) */
+    @media (hover: hover) and (pointer: fine) {
+      .choice-btn:not([disabled]):hover {
+        border-color: #f0a500 !important;
+        background-color: #1c2736 !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-panel-bg text-inst-text min-h-screen scanlines" x-data="examApp()">
@@ -196,7 +205,7 @@
             <button @click="selectAnswer(currentIndex, ci)"
                     :disabled="answers[currentIndex] !== undefined"
                     :class="choiceClass(currentIndex, ci)"
-                    class="w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all duration-200 flex items-start gap-3 active:scale-[0.98]">
+                    class="w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all duration-200 flex items-start gap-3 active:scale-[0.98] focus:outline-none">
               <span class="choice-letter" :style="choiceLetterStyle(currentIndex, ci)"
                     x-text="String.fromCharCode(65 + ci)"></span>
               <span class="text-sm sm:text-[15px] leading-relaxed pt-0.5" x-text="choice"></span>
@@ -446,6 +455,9 @@ function examApp() {
     selectAnswer(qi, ci) {
       if (this.answers[qi] !== undefined) return;
       this.answers[qi] = ci;
+      if (ci === this.examQuestions[qi].correctIndex) {
+        setTimeout(() => { document.activeElement.blur(); this.nextQuestion(); }, 600);
+      }
     },
 
     nextQuestion() {
@@ -460,7 +472,7 @@ function examApp() {
     choiceClass(qi, ci) {
       const selected = this.answers[qi];
       if (selected === undefined)
-        return 'border-panel-border bg-panel-card hover:border-inst-amber hover:bg-panel-raised active:bg-panel-raised cursor-pointer';
+        return 'border-panel-border bg-panel-card active:bg-panel-raised cursor-pointer choice-btn';
       const correct = this.examQuestions[qi].correctIndex;
       if (ci === correct)
         return 'border-inst-green/50 bg-inst-green/10 text-inst-green';
