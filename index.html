@@ -178,6 +178,21 @@
             <div class="w-2 h-2 rounded-full" :class="answers[currentIndex] !== undefined ? 'bg-inst-green' : 'bg-inst-amber animate-pulse'"></div>
             <span class="font-mono text-xs text-inst-muted"
                   x-text="Object.keys(answers).length + ' / ' + examQuestions.length + ' answered'"></span>
+            <div class="relative ml-1">
+              <button @click="confirmReset = true" title="Start over"
+                      class="p-1.5 rounded-lg text-inst-muted hover:text-inst-red transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+              </button>
+              <div x-show="confirmReset" x-transition.opacity.duration.150ms
+                   @click.away="confirmReset = false"
+                   class="absolute right-0 top-9 bg-panel-raised border border-panel-border rounded-xl p-3 shadow-xl z-50 w-52">
+                <p class="font-mono text-xs text-inst-text mb-3">Start over? Progress will be lost.</p>
+                <div class="flex gap-2">
+                  <button @click="confirmReset = false" class="flex-1 font-mono text-[11px] py-1.5 rounded-lg border border-panel-border text-inst-muted hover:bg-panel-card transition-colors">Cancel</button>
+                  <button @click="confirmReset = false; resetExam()" class="flex-1 font-mono text-[11px] py-1.5 rounded-lg bg-inst-red text-white hover:bg-red-500 transition-colors">Reset</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Progress bar -->
@@ -219,7 +234,7 @@
 
       <!-- Navigation -->
       <nav class="flex items-center justify-between pt-4 pb-6">
-        <button @click="currentIndex > 0 && currentIndex--"
+        <button @click="prevQuestion()"
                 :disabled="currentIndex === 0"
                 :class="currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-panel-raised active:bg-panel-border'"
                 class="flex items-center gap-2 font-mono text-sm text-inst-muted px-4 py-3 rounded-lg border border-panel-border transition-colors">
@@ -301,6 +316,7 @@
 
 <script>
 function examApp() {
+  const STORAGE_KEY = 'lidoExamState';
   const rawData = [
     {q:"When dose the runway center line lights displayed all \"RED\"?", c:["Last 300 m.","Last 900 m.","Last 450 m.","Last 600 m."], a:0},
     {q:"What is the Russian Federation's GNSS?", c:["GLONASS","QZSS","Gallileo","GBAS"], a:0},
@@ -409,7 +425,40 @@ function examApp() {
     shuffleChoices: false,
     currentIndex: 0,
     answers: {},
+    confirmReset: false,
     examQuestions: [],
+
+    init() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const s = JSON.parse(raw);
+          if (s.examQuestions && s.examQuestions.length) {
+            this.started = s.started;
+            this.finished = s.finished;
+            this.reviewMode = s.reviewMode || false;
+            this.shuffleQuestions = s.shuffleQuestions || false;
+            this.shuffleChoices = s.shuffleChoices || false;
+            this.currentIndex = s.currentIndex || 0;
+            this.answers = s.answers || {};
+            this.examQuestions = s.examQuestions;
+          }
+        }
+      } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+    },
+
+    save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        started: this.started,
+        finished: this.finished,
+        reviewMode: this.reviewMode,
+        shuffleQuestions: this.shuffleQuestions,
+        shuffleChoices: this.shuffleChoices,
+        currentIndex: this.currentIndex,
+        answers: this.answers,
+        examQuestions: this.examQuestions
+      }));
+    },
 
     get correctCount() {
       return Object.entries(this.answers).filter(([qi, ci]) =>
@@ -450,13 +499,22 @@ function examApp() {
       this.started = true;
       this.finished = false;
       this.reviewMode = false;
+      this.save();
     },
 
     selectAnswer(qi, ci) {
       if (this.answers[qi] !== undefined) return;
       this.answers[qi] = ci;
+      this.save();
       if (ci === this.examQuestions[qi].correctIndex) {
         setTimeout(() => { document.activeElement.blur(); this.nextQuestion(); }, 600);
+      }
+    },
+
+    prevQuestion() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+        this.save();
       }
     },
 
@@ -467,6 +525,7 @@ function examApp() {
       } else {
         this.finished = true;
       }
+      this.save();
     },
 
     choiceClass(qi, ci) {
@@ -491,11 +550,13 @@ function examApp() {
     },
 
     resetExam() {
+      localStorage.removeItem(STORAGE_KEY);
       this.started = false;
       this.finished = false;
       this.reviewMode = false;
       this.currentIndex = 0;
       this.answers = {};
+      this.examQuestions = [];
     }
   };
 }
