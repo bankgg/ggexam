@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>LIDO Route Manual Exam Prep</title>
+  <title>Exam Prep</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,8 +112,56 @@
 </head>
 <body class="bg-panel-bg text-inst-text min-h-screen scanlines" x-data="examApp()">
 
+  <!-- ===================== EXAM SELECTION SCREEN ===================== -->
+  <div x-show="!selectedExam && !started" x-transition.opacity.duration.300ms class="flex items-center justify-center min-h-screen px-4 py-8">
+    <div class="max-w-md w-full">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 mb-6">
+          <div class="w-2 h-2 rounded-full bg-inst-amber animate-pulse"></div>
+          <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-inst-muted">Examination System</span>
+          <div class="w-2 h-2 rounded-full bg-inst-amber animate-pulse"></div>
+        </div>
+        <h1 class="font-mono text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+          Exam Prep
+        </h1>
+        <div class="mt-3 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-inst-amber to-transparent"></div>
+        <p class="mt-3 text-inst-muted text-sm">Select an examination</p>
+      </div>
+
+      <div class="space-y-3">
+        <button @click="selectedExam = 'lido'; restoreExamState()"
+                class="w-full bg-panel-card border border-panel-border rounded-xl p-5 text-left hover:border-inst-amber/50 hover:bg-panel-raised transition-all active:scale-[0.98] group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg bg-inst-amber/10 border border-inst-amber/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-inst-amber" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503-8.457a3.75 3.75 0 0 1 0 5.643m-7.006-5.643a3.75 3.75 0 0 0 0 5.643m12.006 0L15.75 14.25M4.5 20.25h15"/></svg>
+            </div>
+            <div>
+              <p class="font-mono text-sm font-bold text-white tracking-tight">LIDO Route Manual</p>
+              <p class="text-xs text-inst-muted mt-0.5">88 Questions &middot; Multiple Choice</p>
+            </div>
+            <svg class="w-5 h-5 text-inst-muted ml-auto group-hover:text-inst-amber transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+
+        <button @click="selectedExam = 'oma'; restoreExamState()"
+                class="w-full bg-panel-card border border-panel-border rounded-xl p-5 text-left hover:border-inst-amber/50 hover:bg-panel-raised transition-all active:scale-[0.98] group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg bg-inst-amber/10 border border-inst-amber/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-inst-amber" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+            </div>
+            <div>
+              <p class="font-mono text-sm font-bold text-white tracking-tight">OM-A (Operation Part)</p>
+              <p class="text-xs text-inst-muted mt-0.5">100 Questions &middot; Multiple Choice</p>
+            </div>
+            <svg class="w-5 h-5 text-inst-muted ml-auto group-hover:text-inst-amber transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== START SCREEN ===================== -->
-  <div x-show="!started" x-transition.opacity.duration.300ms class="flex items-center justify-center min-h-screen px-4 py-8">
+  <div x-show="selectedExam && !started" x-transition.opacity.duration.300ms class="flex items-center justify-center min-h-screen px-4 py-8">
     <div class="max-w-md w-full">
       <!-- Header mark -->
       <div class="text-center mb-10">
@@ -122,12 +170,19 @@
           <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-inst-muted">Examination System</span>
           <div class="w-2 h-2 rounded-full bg-inst-amber animate-pulse"></div>
         </div>
-        <h1 class="font-mono text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
-          LIDO Route Manual
-        </h1>
+        <h1 class="font-mono text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight"
+            x-text="selectedExam === 'oma' ? 'OM-A (Operation Part)' : 'LIDO Route Manual'"></h1>
         <div class="mt-3 h-px w-16 mx-auto bg-gradient-to-r from-transparent via-inst-amber to-transparent"></div>
-        <p class="mt-3 text-inst-muted text-sm">88 Questions &middot; Multiple Choice</p>
+        <p class="mt-3 text-inst-muted text-sm"
+           x-text="(selectedExam === 'oma' ? '100' : '88') + ' Questions · Multiple Choice'"></p>
       </div>
+
+      <!-- Back to selection -->
+      <button @click="selectedExam = null; localStorage.removeItem('lidoExamSelection')"
+              class="w-full flex items-center justify-center gap-2 text-inst-muted hover:text-inst-text font-mono text-xs mb-4 py-2 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Change Exam
+      </button>
 
       <!-- Options panel -->
       <div class="bg-panel-card border border-panel-border rounded-xl overflow-hidden mb-6">
@@ -316,7 +371,6 @@
 
 <script>
 function examApp() {
-  const STORAGE_KEY = 'lidoExamState';
   const rawData = [
     {q:"When dose the runway center line lights displayed all \"RED\"?", c:["Last 300 m.","Last 900 m.","Last 450 m.","Last 600 m."], a:0},
     {q:"What is the Russian Federation's GNSS?", c:["GLONASS","QZSS","Gallileo","GBAS"], a:0},
@@ -408,6 +462,109 @@ function examApp() {
     {q:"What is the purpose of the Rapid Exit Taxiway Indicator Lights (RETILS)?", c:["To enhance situational awareness in all RWY conditions.","To enable pilots to apply braking action more efficiently roll out and RWY exit speeds.","Help pilot to apply landing technique more efficiently.","To provide pilots with distance to go information to the nearest TWY on the RWY."], a:1}
   ];
 
+  const omRawData = [
+    {q:"WHAT DOES THE WORD \"SHALL\",\"SHOULD\",\"MAY\" IN OM-A MEAN?", c:["\"Shall\" means an action verb in the imperative sense, means that the application of a rule or procedure or provision is mandatory. \"Should\" means that the application of a procedure or provision is recommended. \"May\" means that the application of a procedure or provision is optional.","\"Shall\" means that the application of a procedure or provision is recommended. \"Should\" means an action verb in the imperative sense, means that the application of a rule or procedure or provision is mandatory. \"May\" means that the application of a procedure or provision is optional.","\"Shall\" means an action verb in the imperative sense, means that the application of a rule or procedure or provision is mandatory. \"Should\" means that the application of a procedure or provision is optional. \"May\" means that the application of a procedure or provision is recommended.","All of above are incorrect."], a:0},
+    {q:"AIRCRAFT OPERATION IN EACH RNP AIRSPACE SHALL BE EQUIPPED WITH RNAV EQUIPMENT. WHICH ONE IS 'INCORRECT' ABOUT RNP CERTIFIED FOR YOUR AIRCRAFT TYPE?", c:["B777-300ER : RNAV 1, RNAV 5, RNAV 10, RNP2, RNP4","A320-200 : RNAV 1, RNAV 5, RNAV 10, RNP2, RNP4","A330-300 : RNAV 1, RNAV 5, RNAV 10, RNP1, RNP4","A350-900 : RNAV 1, RNAV 5, RNAV 10, RNP1, RNP4"], a:1},
+    {q:"WHAT ARE THE DO SAFETY AND COMPLIANCE OBJECTIVES?", c:["Safety, Security / Punctuality / Passenger comfort and customer satisfaction / Economy / Employee Synergy","Safety, Security and Compliance / Punctuality / Passenger comfort and customer satisfaction / Economy / Employee Synergy","Safety, Security and Compliance / Passenger comfort and customer satisfaction / Punctuality / Economy / Employee Synergy","Safety, Security and Compliance / Passenger comfort and customer satisfaction / Punctuality / Employee Synergy / Economy"], a:1},
+    {q:"WHAT IS THE MINIMUM NUMBER OF CABIN ATTENDANTS FOR YOUR AIRCRAFT TYPE?", c:["B777-200: 10, B777-300ER (77B): 10, B777-300ER (77Y): 10, B787-8: 8, B787-9: 10, A320-200: 4, A330-300: 8, A350-900: 10","B777-200: 8, B777-300ER (77B): 10, B777-300ER (77Y): 10, B787-8: 8, B787-9: 9, A320-200: 6, A330-300: 8, A350-900: 10","B777-200: 8, B777-300ER (77B): 10, B777-300ER (77Y): 11, B787-8: 8, B787-9: 8, A320-200: 4, A330-300: 8, A350-900: 8","B777-200: 10, B777-300ER (77B): 10, B777-300ER (77Y): 10, B787-8: 8, B787-9: 8, A320-200: 6, A330-300: 8, A350-900: 8"], a:2},
+    {q:"WHO SHALL ASSUME THE P-i-C DUTIES SHOULD HE BECOME INCAPABLE OF HOLDING COMMAND?", c:["Flight crew composed of two pilots: The second pilot takes the authority over all persons on board the aircraft until the normal chain of command can be re-established.","Flight crew composed of more than two pilots: The second pilot takes the authority over all persons on board the aircraft until a more qualified pilot (if any) takes the authority after having been informed by the second pilot and having acknowledged the overall situation and this until the normal chain of command can be re-established.","A and B are correct.","All of above are incorrect."], a:2},
+    {q:"WHAT IS THE ROUTE QUALIFICATION REQUIREMENTS FOR P-i-C?", c:["Thailand – Japan / More complex route/ Self-briefing with routes documentation.","Thailand–P.R. of China v.v./ Less complex route/ Self-briefing with routes documentation or by means of programmed instruction.","Thailand–European countries v.v./ More complex route/ PIC shall have his in-flight familiarized under supervision, or have familiarized in an approved simulator using the database appropriate to the route concerned.","B and C are correct."], a:2},
+    {q:"WHAT ARE THE ROUTE AND AERODROME QUALIFICATION REQUIREMENTS FOR CO-PILOTS?", c:["Copilot shall have his in-flight familiarization under supervision.","Copilot is qualified by self-briefing using published material.","A and B are correct.","A and B are incorrect."], a:1},
+    {q:"HOW MUCH BLOOD ALCOHOL LEVEL THAT CREWMEMBER MUST NOT COMMENCE A FLIGHT DUTY?", c:["Blood alcohol level in excess 0.0 grams per liter.","Blood alcohol level in excess 0.02 grams per liter.","Blood alcohol level in excess 0.0 grams per liter except Deadhead.","Blood alcohol level in excess 0.02 grams per liter except Deadhead."], a:0},
+    {q:"WHAT IS THE MEAL PRECAUTION FOR THE CREW DURING FLIGHT?", c:["FDP exceeds 6 hours flight crew shall have regular crew meals during flight service. The period between two meals must not exceed 6 hours. At least one hot meal shall be served during a service of 12 hours. Only under exceptional circumstances may the P-i-C decide to deviate from this rule.","FDP exceeds 5 hours flight crew shall have regular crew meals during flight service. The period between two meals must not exceed 6 hours. At least one hot meal shall be served during a service of 12 hours. Only under exceptional circumstances may the P-i-C decide to deviate from this rule.","FDP exceeds 5 hours flight crew shall have regular crew meals during flight service. The period between two meals must not exceed 5 hours. At least one hot meal shall be served during a service of 12 hours. Only under exceptional circumstances may the P-i-C decide to deviate from this rule.","All of above are incorrect."], a:1},
+    {q:"WHAT IS THE MINIMUM REST PERIOD?", c:["Duty period 8-10 hours : Minimum rest period is 8 hours.","Duty period 10-12 hours : Minimum rest period is 10 hours.","Duty period 14-16 hours : Minimum rest period is 14 hours.","Duty period 16-20 hours : Minimum rest period is 24 hours."], a:3},
+    {q:"If the scheduled FDP for a two crew aircraft includes any flight sector which has a FDP more than 9 hours (8 hours when the FDP ends or falls between 02:00 and 05:59 local time where the FDP starts) the minimum rest shall be?", c:["at least 9 hours.","at least 16 hours.","at least 18 hours.","at least 24 hours."], a:2},
+    {q:"WHAT IS THE MINIMUM REST PERIOD AT HOME BASE?", c:["at least 12 hours. / For intercontinental flight shall be at least 36 hours.","at least 24 hours. / For intercontinental flight shall be at least 36 hours.","at least 24 hours. / For intercontinental flight shall be at least 48 hours.","at least 12 hours. / For intercontinental flight shall be at least 48 hours."], a:3},
+    {q:"WHAT IS THE ALLOWABLE FLIGHT DUTY PERIODS OF FLIGHT TG471 DEPARTURE TIME 0725 WITH FLIGHT TIME 8 HOURS AND 30 MINUTES?", c:["10:00 HRS.","11:00 HRS.","13:00 HRS.","16:00 HRS."], a:2},
+    {q:"WHEN WILL EXTRA FLIGHT CREW BE REQUIRED?", c:["any flights with two-man crew shall be augmented by 1 pilot when the FDP comprise of at least one sector as specified in the flight schedule more than 9 hours","any flights with two man crews shall be augmented by 1 pilot when the FDP exceeding 6 hours and more than 4 hours of such time fall between 01:00 and 05:59 local time where FDP starts.","any flights with two man crews shall be augmented by 2 pilots when the FDP exceeding 12.30 hours.","any flights with two man crews shall be augmented by 2 pilots when the FDP exceeding 11 hours and more than 4 hours of such time fall between 01:00 and 05:59 local time where FDP starts."], a:0},
+    {q:"HOW MANY BLOCK HOURS MAY CREW MEMBER FLY AS AN OPERATING CREW MEMBER IN ONE CALENDAR YEAR?", c:["34 cumulative flight hours in any 7 consecutive days.","110 cumulative flight hours in any 28 consecutive days.","Flight deck crew shall not exceed: 1,000 cumulative flight hours in any 365 consecutive days.","All of above are correct."], a:3},
+    {q:"HOW LONG DOES THE FDP EXTENSION FOR FLIGHT CREW WHEN THE AUGMENTED CREW PROVIDED?", c:["For two-pilot crew augmented by 1 pilot, the maximum FDPs irrespective of encroachment of the WOCL are 14 hours with the provision of an adequate rest facility.","For two-pilot crew augmented by 1 pilot, the maximum FDPs irrespective of encroachment of the WOCL are 14 hours with the provision of a suitable rest facility.","For two-pilot crew augmented by 2 pilots, the maximum FDPs irrespective of encroachment of the WOCL are 16 hours with the provision of a suitable rest facility.","For two-pilot crew augmented by 2 pilots, the maximum FDPs irrespective of encroachment of the WOCL are 18 hours with the provision of a suitable rest facility."], a:0},
+    {q:"HOW LONG DOES THE FDP EXTENSION FOR CABIN CREW WHEN THE AUGMENTED CREW PROVIDED?", c:["Cabin crew rest in seat 1 hr, FDP extension up to 14:00 hrs.","Cabin crew rest in seat 2 hrs, FDP extension up to 16:00 hrs.","Cabin crew rest in crew bulk 2 hrs, FDP extension up to 16:00 hrs.","Cabin crew rest in crew bulk 2 hrs, No FDP extension."], a:2},
+    {q:"WHAT IS THE MAXIMUM STANDBY PERIOD?", c:["The standby limits 6 hours in each 12 hours.","The standby limits 8 hours in each 16 hours.","The standby limits 10 hours in each 20 hours.","The standby limits 12 hours in each 24 hours."], a:3},
+    {q:"HOW TO MODIFY THE LIMITS ON FLIGHT DUTY, DUTY AND REST PERIODS IN THE EVENT OF UNFORESEEN CIRCUMSTANCES?", c:["Flight duty periods may be extended in planning phase by no more than 3 hours, only at the discretion of P-i-C.","The maximum FDP may not be increased by more than 2 hours unless the flight crew has been augmented, in which case the maximum FDP may be increased by not more than 3 hours.","Flight duty periods may be extended in such unforeseen operational circumstances by no more than 3 hours, only at the discretion of P-i-C and approved by PA.","Flight duty periods may be extended in such unforeseen operational circumstances by no more than 3 hours, only at the discretion of P-i-C and approved by THAI operation function."], a:1},
+    {q:"WHAT IS THE MINIMUM TURNING ALTITUDE AND LIMITED BANK ANGLE FOR TURN AFTER TAKEOFF (FOR NOISE ABATEMENT PROCEDURE)?", c:["All-engine turns shall not be initiated below 500 ft AGL except where clearly published in SID or climb-out procedures. Limited Bank Angle: Up to height of 400 ft, not more than 15 degree. Above 400 ft height, not more than 25 degree.","All-engine turns shall not be initiated below 500 ft AGL except where clearly published in SID or climb-out procedures. Limited Bank Angle: Up to height of 500 ft, not more than 15 degree. Above 500 ft height, not more than 25 degree.","All-engine turns shall not be initiated below 400 ft AGL except where clearly published in SID or climb-out procedures. Limited Bank Angle: Up to height of 400 ft, not more than 15 degree. Above 400 ft height, not more than 25 degree.","No minimum turning altitude and no limited bank angle for turn after takeoff."], a:0},
+    {q:"WHAT IS MINIMUM TERRAIN CLEARANCE IN CASE OF ENGINE FAILURE?", c:["the performance of the aircraft meets Minimum Terrain Clearance in Case of Engine Failure that the 1-engine inoperative service ceiling is 2,000ft higher than the relevant terrain.","the performance of the aircraft meets a 1,000ft vertical clearance between the net drift-down flight path and the terrain at the Pre-Determined Point (PDP) in Case of Engine Failure using drift-down procedure.","the performance of the aircraft meets Minimum Terrain Clearance in Case of Engine Failure that the all engine service ceiling is 1,000ft higher than the relevant terrain.","the performance of the aircraft meets a 2,000ft vertical clearance between the net drift-down flight path and the terrain at the Pre-Determined Point (PDP) in Case of Engine Failure using drift-down procedure."], a:3},
+    {q:"WHAT ARE THE CORRECTIONS FOR WIND, TEMPERATURE AND QNH FOR ALL MINIMUM ALTITUDES?", c:["Wind correction : wind speed 20 kts, altitude error 201 ft. Temp correction : add 4% per 10° Celsius below standard as a rule of thumb. Pressure correction : QNH below 1013.25 hPa, add 30 ft per hPa.","Wind correction : wind speed 40 kts, altitude error 201 ft. Temp correction : add 4% per 10° Fahrenheit below standard as a rule of thumb. Pressure correction : QNH below 1013.25 hPa, add 30 ft per hPa.","Wind correction : wind speed 40 kts, altitude error 201 ft. Temp correction : add 4% per 10° Celsius below standard as a rule of thumb. Pressure correction : QNH below 1013.25 hPa, add 30 ft per hPa.","Wind correction : wind speed 40 kts, altitude error 201 ft. Temp correction : add 4% per 10° Celsius below standard as a rule of thumb. Pressure correction : QNH below 1013.25 hPa, add 20 ft per hPa."], a:2},
+    {q:"FOR A TWO-ENGINE AIRCRAFT, THE TAKEOFF ALTERNATE MUST BE LOCATE WITHIN:", c:["One hour of flight time at all-engine operating cruising speed.","Two hours of flight time at all-engine operating cruising speed.","One hour of flight time at a one-engine inoperative cruising speed.","Two hours of flight time at a one-engine inoperative cruising speed."], a:2},
+    {q:"WHEN IS TAKE OFF ALTERNATE REQUIRING?", c:["When the weather at destination airport is such that is not possible to plan to come back for landing in the event of a critical aircraft malfunction an adequate takeoff alternate must be selected.","When the weather at origin airport is such that is not possible to plan to come back for landing in the event of a critical aircraft malfunction an adequate takeoff alternate must be selected.","When have no enough fuel to land at destination.","When the weather at destination is not meet requirement for approach."], a:1},
+    {q:"HOW CAN WE REDUCE CONTINGENCY FUEL (CF)?", c:["When planning to use En route Alternate Airport which should be located within a circle with a radius equal to 20% of the total flight plan distance, the center of which lies on the planned route at a distance from destination 25% of the total flight plan distance, or 20% of the total flight plan distance plus 50 nm, whichever is greater.","The weather at the en route alternate shall be forecasted and expected to be at or above alternate minima.","The en route alternate shall be specified in the Operational flight plan.","All of Above are correct."], a:3},
+    {q:"WHAT IS QUALIFICATION OF P-I-C TO OPERATING THE GROUP C AERODROME?", c:["No special requirements.","Self briefing only.","Should be briefed and visit an aerodrome as an observer.","Briefing completion should be recorded."], a:2},
+    {q:"WHAT ARE THE ALTERNATE WEATHER REQUIREMENTS?", c:["CAT II & III : Planing minima as CAT I RVR.","CAT I : Planing minima as CAT I RVR + 1,000 m.","NPA : Planing minima as NPA RVR/VIS + 1,000 m / ceiling shall Be At Or above MDA + 100 ft.","All of above are correct."], a:0},
+    {q:"WHAT IS THE MINIMUM OF TAKE OFF MINIMA FOR THAI AIRCRAFT?", c:["RVR 75 m with no DH.","RVR 100 m.","RVR 150 m.","RVR 200 m."], a:2},
+    {q:"WHAT ARE THE WEATHER REQUIREMENTS FOR CATEGORY II?", c:["RVR not less than 300m, DH below 200 ft and not lower than 100 ft.","RVR not less than 350m, DH below 150 ft and not lower than 100 ft.","RVR not less than 300m, DH below 100 ft and not lower than 50 ft.","RVR not less than 350m, DH below 150 ft and not lower than 100 ft."], a:0},
+    {q:"WHAT ARE THE WEATHER REQUIREMENTS FOR CATEGORY III?", c:["CAT IIIA : RVR not less than 200m, DH not lower than 200 ft.","CAT IIIA : RVR not less than 150m, DH not lower than 100 ft.","CAT IIIB : RVR less than 200m but not less than 75m, DH not lower than 50 ft.","CAT IIIB : RVR less than 200m but not less than 75m, DH lower than 50 ft or no decision height."], a:3},
+    {q:"WHAT IS NOT A VISUAL REFERENCE FOR NON PRECISION APPROACH?", c:["The threshold markings.","The visual glide slope indicator.","Runway center line lights","Runway edge lights."], a:2},
+    {q:"WHAT IS NOT THE VISUAL REFERENCE FOR CAT IIIA APPROACH?", c:["at least 3 consecutive lights being: The touchdown zone lights.","at least 3 consecutive lights being: The taxiway lights.","at least 3 consecutive lights being: The runway edge lights.","at least 3 consecutive lights being: The centerline of the approach lights."], a:1},
+    {q:"WHICH ONE IS CORRECT ABOUT THE ALERT HEIGHT FOR THAI?", c:["The AH is set to be 100 ft for THAI A350","The AH is set to be 100 ft for THAI B777","The AH is set to be 100 ft for THAI A330","The AH is set to be 200 ft for THAI B787"], a:3},
+    {q:"WHAT DOES THE MINIMUM RAMP (BLOCK) FUEL CONSIST OF WHEN THE FLIGHT IS PLANNED WITH ONE&TWO ALTERNATES?", c:["Taxi fuel + Trip fuel + Contingency fuel + Alternate fuel (if 2 Alternate : greater amount)+ Final reserve fuel.","Taxi fuel + Trip fuel + Contingency fuel + Alternate fuel (if 2 Alternate : less amount) + Final reserve fuel.","Taxi fuel + Trip fuel + Alternate fuel + Final reserve fuel.","Taxi fuel + Trip fuel + Alternate fuel + Final reserve fuel."], a:0},
+    {q:"HOW DO WE CALCULATE THE AMOUNT OF FUEL FOR THRU TANKAGE?", c:["THRU tankage is the sum of minimum fuel required for the last sector and burn off fuel for the previous sector(s)(sum of trip fuel, taxi-out fuel and taxi-in fuel)","THRU Tankage is Minimum fuel required for first + The sum of burn off (for the next sector).","THRU Tankage on sector is limited by Landing Weight, A330 Max LW minus 1.5 ton.","THRU Tankage on sector is limited by Landing Weight, A330 Max LW minus 1.0 ton."], a:0},
+    {q:"WHAT NEED TO BE DONE WHEN CORRECTING ENTRY IN AIRCRAFT LOG?", c:["Any error made during writing on the Aircraft Log, the mistake shall be crossed out by two diagonal line and signed by the writer with his/her ID No./AUTH No.","Any error made during writing on the Aircraft Log, the mistake shall be crossed out by one diagonal line and signed by the writer with his/her ID No./AUTH No.","Any error made during writing on the Aircraft Log, the mistake shall be crossed out by one diagonal line.","Any error made during writing on the Aircraft Log, the mistake shall be erased by a good eraser."], a:1},
+    {q:"WHICH ONE IS NOT A PROCEDURE FOR FUELING WITH PASSENGER ON BOARD?", c:["A two-way communication must be established and must remain available between the flight crew and cabin crew.","Switch ON \"Fasten Seat Belt\" light.","Switch ON \"No smoking\" light.","Switch ON the interior lighting indicating emergency exits."], a:1},
+    {q:"EXPLAIN CRITERIA FOR ICING CONDITION?", c:["May be expected when the OAT (on the ground and for take-off) or when TAT (in flight) is at or below 10 degrees C.","May be expected when the OAT (on the ground and for take-off) or when TAT (in flight) is at or below 10 degrees C, and there is visible moisture in the air.","May be expected when the OAT (on the ground and for take-off) or when TAT (in flight) is at or above 10 degrees C, and there is visible moisture in the air.","May be expected when the OAT (on the ground and for take-off) or when TAT (in flight) is at or below 10 degrees F, and there is visible moisture in the air."], a:1},
+    {q:"WHAT IS THE MINIMUM RUNWAY WIDTH FOR TAKEOFF AND LANDING?", c:["45 m or wider.","Operation from narrower runways can be approved by DP.","A&B are correct.","A&B are incorrect."], a:2},
+    {q:"WHO SHALL PERFORM TAKEOFF IN RVR LESS THAN 500 METERS?", c:["All takeoffs in RVR of 500 m or less (visibility if RVR not available) must be performed by the LP with maximum crosswind is 20 kt.","All takeoffs in RVR of 500 m or less (visibility if RVR not available) must be performed by the LP with maximum crosswind is 10 kt.","All takeoffs in RVR of 500 m or less (visibility if RVR not available) must be performed by the RP with maximum crosswind is 20 kt.","All takeoffs in RVR of 500 m or less (visibility if RVR not available) must be performed by the RP with maximum crosswind is 10 kt."], a:1},
+    {q:"WHAT TYPE OF ABNORMALITIES JUSTIFIES A DISCONTINUED TAKEOFF AFTER V1?", c:["Collision with foreign objects resulting in structural damage.","Flight control failure or blocking of controls if aircraft acceleration is not considerable effected.","Urgency call from cabin.","A and B are correct."], a:3},
+    {q:"WHAT IS THE LIFT-OFF SPEED FOR A 2-ENGINE AIRCRAFT IN THE CASE OF A CONTINUED TAKEOFF AFTER AN ENGINE FAILURE?", c:["V1– 20","V1– 10","V1– 5","V1"], a:1},
+    {q:"IN CASE WE HAVE NOTICED OR BEEN REPORTED OF TIRES FAILURE, WHAT SHOULD WE DO?", c:["Keep landing gear extended for at least 5 min (except when prohibited from a performance point of view).","If possible, confirm by visual check from aircraft or control tower that no fire or visible damage exists.","Ask for an inspection of the takeoff area to check that vital parts have not become detached, or are causing a hindrance on the runway.","All of above are correct."], a:3},
+    {q:"WHEN SHALL AN APPROACH BRIEFING BE PERFORMED?", c:["when approach checklist performed.","when every crewmember can pay full attention to.","when Cabin Crew report Cabin ready to cockpit.","around 45 mins before landing."], a:1},
+    {q:"WHICH ONE IS CORRECT ABOUT RATE OF DESCENT BE MORE THAN 2,000 FT WHEN ACFT ALTITUDE IS WITHIN 2,000 FT OF THE INDICATED MOCA/MORA OR MSA?", c:["Exceptions only during daylight with visible surrounding terrain.","when a greater rate of descent is part of an approved ATC procedure according to RM.","A and B are correct.","Both A&B are incorrect."], a:2},
+    {q:"FOR CAT II/III APPROACH, RVR SHALL BE MEASURED BY TRANSMISSOMETER OR OTHER SUCH MEANS. IF MORE THAN ONE RVR VALUE IS GIVEN FOR THE SAME RUNWAY, WHICH RVR DETERMINES THE MINIMA FOR LANDING?", c:["RVR at the threshold.","RVR which lowest.","RVR which greatest.","Any RVR on that runway."], a:0},
+    {q:"CAN WE USE PRECISION APPROACH PATH INDICATOR (PAPI) UNTIL TOUCHDOWN?", c:["PAPI may be used by all aircraft down to 500 ft.","PAPI may be used by all aircraft down to 200 ft.","PAPI may be used by all aircraft down to 100 ft.","PAPI may be used until touchdown."], a:1},
+    {q:"WHAT IS NOT CONSIDERED BY A STABILIZED APPROACH?", c:["Along the desired flight path in landing configuration.","With thrust setting not below minimum thrust required to maintain the desired flight path.","At the approach speed between VREF and VREF+30 kt.","While maintaining an acceptable rate of descent, and not exceeding 1,000 ft per minute."], a:2},
+    {q:"HOW DO WE HANDLE THE PROBLEM WHEN LANDING IN CROSSWIND WITH PRECIPITATION OR DRIFTING SNOW/SAND CONDITIONS?", c:["make yourself aware of the existing situation","do not use landing lights look well in front of the aircraft during touchdown and landing roll.","Use runway lights for reference","All are correct."], a:3},
+    {q:"THE \"CABIN CLEAR\" REPORT HAS BEEN RECEIVED FROM THE IM/AIR PURSER, WHICH ONE IS NOT INDICATING FOR \"CABIN CLEAR\"?", c:["Security pre-flight check has been performed;","Crew meals are loaded;","PAX meal ready to serve.","All cabin doors are closed and armed;"], a:2},
+    {q:"PRIOR ENTERING RVSM AIRSPACE, WHAT EQUIPMENT IS NOT REQUIRED?", c:["Two serviceable independent primary altitude measurement systems.","Two GPS.","One automatic altitude-control system.","One altitude-alerting device."], a:1},
+    {q:"WHEN CHANGING FLIGHT LEVELS, WHAT IS THE MAXIMUM DISTANCE YOU ARE ALLOWED TO OVERSHOOT OR UNDERSHOOT?", c:["50 ft.","100 ft.","150 ft.","200 ft."], a:2},
+    {q:"WHEN SHALL SHOULDER HARNESS AND ITS LOCKING DEVICES BE USED?", c:["During take-off and landing.","During cruise.","When perform before descent checklist.","When below 10,000 ft."], a:0},
+    {q:"WHAT IS MINIMUM PORTABLE OXYGEN BOTTLES REQUIREMENT FOR YOUR AIRCRAFT TYPE?", c:["A320-200 : 310-ltr minimum 4","B777-200ER : 310-ltr minimum 10","A330-300 : 310-ltr minimum 10","A350-900 : 310-ltr minimum 10"], a:0},
+    {q:"STATED THE GENERAL OF COMPANY REGULATIONS FOR CATEGORY II/III OPERATIONS. WHICH ONE IS INCORRECT?", c:["CAT II procedure is mandatory when RVR is above 550 m.","CAT II procedure is mandatory when RVR is below 550 m.","CAT III procedure is mandatory when RVR is below 350 m (300 m where stated by local authorities)","RWYs approved for CAT II/III are indicated in the appropriate approach charts. DH is based on Radio Altimeter (RA) reading"], a:0},
+    {q:"WHEN SHALL FLIGHT CREW MEMBERS HAVE TO USE OXYGEN MASKS IN PRESSURIZED FLIGHT?", c:["When operating above FL410, if one pilot leaves the controls, the remaining pilot at the controls shall put on and use an oxygen mask until the other pilot returns to his station.","During flight, each pilot at controls shall have his oxygen masks in the \"Ready position\" which can be placed on the face with one hand within 5 sec, supplying oxygen and properly secured and sealed.","Before flight, each pilot shall perform preflight check of his oxygen mask is functioning, fitted properly, connected to appropriate supply terminal, and kept in \"Ready position\".","All of above is correct."], a:3},
+    {q:"HOW DO HF COMMUNICATIONS BE SET IN GENERAL?", c:["HF1/LEFT shall be used for en route frequency.","HF2/RIGHT shall be used for VOLMET.","Both A and B are correct.","Both A and B are incorrect."], a:2},
+    {q:"WHEN IS THE VOR NOT RECOMMENDED FOR AUTO-TUNING?", c:["Taxi","Take off","Cruise","Landing"], a:1},
+    {q:"HOW IS THE ILS IDENTIFIED?", c:["The ILS is identified by the identification signal transmitted by the localizer.","The ILS is identified by the identification signal transmitted by the glide slope.","The ILS is identified by the identification signal transmitted by the localizer and glide slope.","All of above are incorrect."], a:0},
+    {q:"WHAT IS THE COVERAGE SECTOR FOR LOCALIZER AND GLIDEPATH?", c:["The localizer coverage sector extends to a minimum of 17 NM within ±35° of the extended centerline of the runway.","The glide slope coverage sector extends to a minimum of 10 NM within ±8° of the extended centerline and within approx +2°/–1.5° of the nominal glide slope angle.","Both A and B are correct.","Both A and B are incorrect."], a:2},
+    {q:"WHAT ARE THE ILS GROUND MONITORING SYSTEMS?", c:["Monitoring action is delayed 10 seconds for CATI.","Monitoring action is delayed 5 seconds for CATII.","Monitoring action is delayed 2 seconds for CATIII ILS.","All above is correct."], a:3},
+    {q:"HOW YOU NOTICE TO ATC WHEN NO RNAV EQUIPMENT?", c:["Report \"Negative – RNAV\" to ATC.","Report \"unable RNP\" to tower.","Try to contact THAI operation.","Try to contact another aircraft."], a:0},
+    {q:"HOW SHOULD THE ADF BE SET FOR DEPARTURE?", c:["RED (ADF1/LEFT) should be tuned to a station suitable to facilitate the keeping of the prescribed track.","GREEN (ADF2/RIGHT) to a station usable for approach in case an immediate return is necessary.","P-i-C's discretion, if the two ADF's are needed during climb according to departure procedures.","All of above are correct."], a:3},
+    {q:"WHEN ARE THE THRUST LEVERS SHALL BE GUARDED?", c:["Below 1,500 ft.","In turbulence condition.","Both A and B.","Below 2,000 ft."], a:2},
+    {q:"WHO SHOULD MAKE THE REQUIRED FMS ENTRIES AND MODE SELECTION BELOW 10,000 FEET?", c:["should be accomplished by PM upon order from PF.","should be accomplished by PF, monitor by PM.","should be accomplished by PF, monitor by Safety Pilot.","All of above are incorrect."], a:0},
+    {q:"WHAT ARE THE DIFFERENCES BETWEEN ATC CLEARANCES, ATC INSTRUCTIONS, AND ATC APPROVALS?", c:["ATC clearance is an AUTHORIZATION by an ATC unit for an aircraft to proceed under conditions specified.","ATC instruction is a DIRECTIVE issued by an ATC unit for the purpose of requiring pilots to take specified actions to be adhered to and carried out without undue delay.","ATC approval is a PERMISSION from an ATC unit for proposed action.","All are correct."], a:3},
+    {q:"WHAT SHALL WE DO WHEN OUR AIRCRAFT IS APPROACHING ANOTHER AIRCRAFT HEAD ON?", c:["Two aircraft approaching head on or approximately so, shall alter their headings to the right.","Two aircraft approaching head on or approximately so, shall alter their headings to the left.","Two aircraft approaching head on or approximately so, do nothing.","Two aircraft approaching head on or approximately so, try to contact another aircraft."], a:0},
+    {q:"DOES THE ESTIMATED TIME OVER A GIVEN POINT REPORTED TO ATC THAT IS IN ERROR OF MORE THAN 3 MINUTES NEED TO BE REVISED IN EVERY COUNTRY?", c:["If average true airspeed varies by 5% or more from that given in flight plan, inform ATS.","If any estimated time given is in error by more than 2 min, notify ATS.","It is not necessary to inform ATS","Both A and B are correct."], a:3},
+    {q:"DISTINGUISH BETWEEN COMMUNICATION FAILURE IN VMC AND IMC WHEN NOT STATED IN COUNTRY'S RULES AND PROCEDURES.", c:["In VMC, Continue in VMC and land at the nearest suitable aerodrome.","In IMC, or if flight cannot be completed according to VMC conditions above, the aircraft shall Proceed according to the current flight plan to the NAV aids serving aerodrome of intended landing and hold until the commencement of descent.","In IMC, or if flight cannot be completed according to VMC conditions above, the aircraft shall land as soon as possible","Both A and B are correct"], a:3},
+    {q:"WHICH ONE IS CORRECT FOR OPERATE EXTERNAL LIGHTS?", c:["Strobe lights shall be turned off after landing and vacated from the active runway.","Use of landing lights is recommended when below 3,000 ft AGL.","Use of other external light such as wing lights is recommended day and night below FL100 and during aircraft movement on ground.","All of above are correct."], a:3},
+    {q:"CAN THE CABIN ATTENDANTS CONTINUE THEIR SERVICES WHEN THE FASTEN SEATBELT SIGN IS TURNED ON DURING TURBULENCE?", c:["\"Yes\", but be careful.","\"Yes\", but have to approve by IM/AP or Captain.","\"Yes\", continue services until finish then back to seat as soon as possible.","\"No\""], a:3},
+    {q:"WHAT IS THE PROCEDURES OF PRE-FLIGHT SECURITY CHECK FOR IM/AP?", c:["Informing the P-i-C that the check will start.","Instructing the assigned cabin crew to guard the opened door until such door is closed for departure.","Checking that no ground staff/personnel remaining on board and Announcing to all cabin crew to perform the check.","All of above are correct."], a:3},
+    {q:"WHAT TIME TO PERFORM PROCEDURES OF PRE-FLIGHT SECURITY CHECK?", c:["Approximately 10 minutes before taxi.","Approximately 10 minutes before passenger boarding.","Approximately 10 minutes before engine start.","Any time."], a:1},
+    {q:"WHAT IS THE PROCEDURES OF POST-FLIGHT SECURITY CHECK IN CABIN MUST INCLUDE?", c:["Overhead bins and stowages.","Passengers seats and seat pockets; Coat lockers and other stowages.","Crew rest area; Lavatories.","All of above are correct."], a:3},
+    {q:"WHAT IS THE UNRULY/DISRUPTIVE (DISORDERLY) PASSENGERS?", c:["Repeatedly refuse to comply with instructions given by the crew.","Behave in such a way that causes discomfort to other passengers or.","Might threaten flight safety or constitutes a serious offence.","All of above are correct."], a:3},
+    {q:"WHAT SHOULD BE DONE IN CASE OF THREAT OF HIJACKING ON GROUND?", c:["At parking/boarding disembark passengers in the normal way.","During taxiing : inform ATC and operate Flight normally.","Inform the passengers of the reason for returning to help passenger to Alert.","All of above are correct."], a:0},
+    {q:"REGARDING THE OPERATION OF TRANSPONDERS, WHAT SHOULD BE SET IN CASE OF A HIJACKING?", c:["SQ 7500","SQ 7600","SQ 7700","SQ 2000"], a:0},
+    {q:"WHAT IS THE REQUIRED LANDING RUNWAY LENGTH? AND HOW IS THE LANDING DISTANCE DETERMINED?", c:["the required landing field length for dry runways is defined as 1.67 times the demonstrated dry landing distance.","for wet runways, this landing distance requirement is increased by 20%.","the required landing field length for contaminated runways is defined as 1.25 times the demonstrated contaminated landing distance.","All of above are correct."], a:0},
+    {q:"WHAT IS THE LONGITUDINAL SEPARATION MINIMA WITH MACH NUMBER TECHNIQUE BASED ON TIME?", c:["9 MIN, if the preceding aircraft is Mach 0.02 faster than the following aircraft;","8 MIN, if the preceding aircraft is Mach 0.04 faster than the following aircraft;","7 MIN, if the preceding aircraft is Mach 0.05 faster than the following aircraft;","6 MIN, if the preceding aircraft is Mach 0.06 faster than the following aircraft;"], a:0},
+    {q:"HOW FAR AWAY IS VICINITY (VC)?", c:["Between approximately 8 and 16 km of the aerodrome reference point and used only in METAR and SPECI with present weather.","Between approximately 8 and 16 nm of the aerodrome reference point.","Around 5 km of the aerodrome.","All of above is incorrect."], a:0},
+    {q:"HOW DO YOU CONSIDER THE SIGNIFICANT WEATHER \"WIND SHEAR\"?", c:["Surface temperature in excess of 30°C.","Dew point spread of 4°C or more.","Virga (precipitation that falls from the bases of high altitude cumulus clouds but evaporates before reaching the ground) are present.","All of above are correct."], a:3},
+    {q:"WHAT IS THE DEFINITION OF THE SPEED FOR MAXIMUM RATE OF CLIMB and SPEED FOR MAXIMUM CLIMB GRADIENT?", c:["Speed for maximum rate of climb results in the highest climb altitude per a given time.","Speed for maximum climb gradient results in the highest climb altitude per given forward distance traveled.","Both A and B are correct.","Both A and B are incorrect."], a:2},
+    {q:"EXPLAIN THE INCREASED PERFORMANCE WINDSHEAR?", c:["On a glide path, a higher than normal pitch attitude, greater thrust setting and a decreased vertical speed.","Lower than normal pitch attitude, a decreased thrust setting and an increase in vertical speed.","Caution: A consistent decreased performance wind shear is typically a strong headwind on the approach, which diminished near the ground.","Both B and C are correct."], a:0},
+    {q:"EXPLAIN THE DECREASED PERFORMANCE WINDSHEAR?", c:["On a glide path, a higher than normal pitch attitude, greater thrust setting and a decreased vertical speed.","Lower than normal pitch attitude, a decreased thrust setting and an increase in vertical speed.","Caution: A consistent decreased performance wind shear is typically a strong headwind on the approach, which diminished near the ground.","Both B and C are correct."], a:3},
+    {q:"WHAT IS A DIFFERENT BETWEEN RNAV AND RNP SPEC?", c:["RNP specification requires on-board navigation performance monitoring and alerting.","RNAV specification requires on-board navigation performance monitoring and alerting.","Both A and B are correct.","Both A and B are Incorrect."], a:0},
+    {q:"For RNP APCH, NAV accuracy value changes according to approach segments?", c:["RNP 1.0 during Initial and Intermediate segments.","RNP 0.3 during Final Approach segment and.","RNP 1.0 during Missed Approach segment.","All of above are correct."], a:3},
+    {q:"WHAT ARE THE ACCEPTABLE TOLERANCES OF DLI AND LIZFW BETWEEN THE EDP LOADSHEET AND BALANCE TABLE FOR YOUR AIRCRAFT TYPE?", c:["A330-300 : DLI ±3.0 / LIZFW ±6.0","A350-900 : DLI ±3.0 / LIZFW ±6.0","B777-300ER : DLI ±3.0 / LIZFW ±5.5","B787-8 : DLI ±3.0 / LIZFW ±4.0"], a:2},
+    {q:"WHAT IS THE STANDARD TAXI FUEL QUANTITIES?", c:["A320-200 300 kg;","A330-300 500 kg;","B777-300ER 600 kg;","B787-8 400 kg;"], a:2},
+    {q:"WHAT IS FUEL QUANTITY FOR STANDARD HOLDING CONSUMPTION?", c:["A320-200 2.5 t/h;","A350-900 5.0 t/h;","B787-8 4.2 t/h;","B777-300ER 6.0 t/h;"], a:2},
+    {q:"HOW DO WE CALCULATE WEIGHT FOR TYPE OF PASSENGERS INTERNATIONAL FLIGHT?", c:["72 kg for each male and female adult passenger","35 kg for each child (2-12 years)","10 kg for each infant (under 2 years)","All of above are correct."], a:3},
+    {q:"HOW DO WE CALCULATE WEIGHT FOR TYPE OF PASSENGERS DOMESTIC FLIGHT?", c:["72 kg for each male and female adult passenger","35 kg for each child (2–12 years);","Both A and B are correct.","15 kg for each infant (under 2 years);"], a:2},
+    {q:"NAME THE PERSONS WHO MAY APPLY FOR PERMISSION TO VISIT AND/OR TO TRAVEL ON THE FLIGHT DECK EVEN WITHOUT CABIN SEAT AVAILABLE?", c:["Crew's family.","Person issued with Flight Deck Permit.","THAI Director.","Movie star."], a:1},
+    {q:"NAME THE PERSONS WHO MAY APPLY FOR PERMISSION TO VISIT AND/OR TO TRAVEL ON THE FLIGHT DECK EVEN WITHOUT CABIN SEAT AVAILABLE?", c:["All passengers","Person issued with Flight Deck Permit.","VIP on board","Movie star."], a:1},
+    {q:"WHICH FLIGHTS ARE NOT CONSIDERED AS THE NON-REVENUE FLIGHTS?", c:["Training flights;","Functional check (\"Test\") flights;","Schedule flights;","Ferry flights;"], a:2},
+    {q:"HOW CAN RUNWAY STRIPES INDICATED THE RUNWAY WIDTH?", c:["Runway width 18m/60ft : Number of stripes is 6","Runway width 23m/75ft : Number of stripes is 8","Runway width 45m/150ft : Number of stripes is 12","Runway width 60m/200ft : Number of stripes is 14"], a:2},
+    {q:"EXPLAIN \"CAVOK\"?", c:["Visibility, 10km or more, and the lowest visibility is not reported.","No cloud of operational significance; (no cloud with the height of cloud base below 1500m (5000ft) or below the highest MSA, whichever is greater, or a cumulonimbus cloud or a towering cumulus cloud at any height)","No weather of significance to aviation.","All of above are correct."], a:3},
+    {q:"WHICH ONE IS CORRECT?", c:["GR : Hail","BR : Mist","FU : Smoke","All above are correct."], a:3},
+    {q:"WHAT IS THE CATEGORY OF WAKE TURBULENCE?", c:["J : Super.","H: Heavy (aircraft types of 136000kg. (300000lbs) or more)","M: Medium (aircraft types less than 136000kg. (300000lbs) and more than 7000kg. (15500lbs))","All of above are correct."], a:3},
+    {q:"WHAT TYPE OF NAV SPECIFICATION SUPPORT ARRIVAL AND DEPARTURE IN TERMINAL AIRSPACE?", c:["P-RNAV","RNAV1","RNP1","All above are correct."], a:3},
+    {q:"WHAT IS THE AIRCRAFT TYPE DESIGNATOR USE FOR ATS FLIGHT PLAN FILING FOR YOUR AIRCRAFT TYPE?", c:["A320-200 :A320","777-300ER :B77W","A350-900 :A359","All are correct"], a:3}
+  ];
+
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -418,6 +575,7 @@ function examApp() {
   }
 
   return {
+    selectedExam: null,
     started: false,
     finished: false,
     reviewMode: false,
@@ -428,9 +586,13 @@ function examApp() {
     confirmReset: false,
     examQuestions: [],
 
-    init() {
+    get STORAGE_KEY() {
+      return 'lidoExamState_' + (this.selectedExam || 'lido');
+    },
+
+    restoreExamState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(this.STORAGE_KEY);
         if (raw) {
           const s = JSON.parse(raw);
           if (s.examQuestions && s.examQuestions.length) {
@@ -442,13 +604,33 @@ function examApp() {
             this.currentIndex = s.currentIndex || 0;
             this.answers = s.answers || {};
             this.examQuestions = s.examQuestions;
+            return;
           }
         }
-      } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+      } catch(e) { localStorage.removeItem(this.STORAGE_KEY); }
+      this.started = false;
+      this.finished = false;
+      this.reviewMode = false;
+      this.shuffleQuestions = false;
+      this.shuffleChoices = false;
+      this.currentIndex = 0;
+      this.answers = {};
+      this.examQuestions = [];
+    },
+
+    init() {
+      try {
+        const sel = localStorage.getItem('lidoExamSelection');
+        if (sel) {
+          this.selectedExam = sel;
+          this.restoreExamState();
+        }
+      } catch(e) {}
     },
 
     save() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      localStorage.setItem('lidoExamSelection', this.selectedExam);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
         started: this.started,
         finished: this.finished,
         reviewMode: this.reviewMode,
@@ -470,7 +652,8 @@ function examApp() {
     },
 
     startExam() {
-      let questions = rawData.map((item) => ({
+      const source = this.selectedExam === 'oma' ? omRawData : rawData;
+      let questions = source.map((item) => ({
         question: item.q,
         choices: [...item.c],
         correctIndex: item.a
@@ -550,7 +733,7 @@ function examApp() {
     },
 
     resetExam() {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(this.STORAGE_KEY);
       this.started = false;
       this.finished = false;
       this.reviewMode = false;
